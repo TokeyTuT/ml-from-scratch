@@ -53,4 +53,25 @@ $$
 	适用于 **大数据集** 的处理
 
 
-## 数据的评估 
+## 数据的评估 `metrics.py`
+* 对于分类模型，采用 `accucacy_score(y_true,y_pred)` 对模型打分
+* 对于回归模型，采用决定系数 $R^2$ `r2_score(y_true,y_pred)` 对模型打分
+* 此外，提供了 MAE、MSE、RMSE 的实现
+
+1. 均方误差 (MSE, Mean Squared Error)
+  $$
+  MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+  $$
+2. 平均绝对误差 (MAE, Mean Absolute Error
+   )
+   $$
+   MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+   $$
+3. 均方根误差 (RMSE, Root Mean Squared Error)
+   $$
+   RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2} = \sqrt{MSE}
+   $$
+4. 决定系数 ($R^2$, Coefficient of Determination)
+$$
+R^2 = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}
+$$
