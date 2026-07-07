@@ -18,10 +18,3 @@ ml-from-scratch/
 ├── datasets/
 └── README.md
 ```
-
-每个算法都保持统一结构：
-
-* model.py：算法实现
-* train.py：训练与测试
-* utils.py：工具函数
-* README.md：数学推导、实现思路、实验结果
