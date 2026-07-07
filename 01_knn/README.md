@@ -50,3 +50,8 @@ class KNNClassifier:
 - 能在二维玩具数据上正确分类。
 - `fit` 后再调用 `predict`。
 - `predict` 支持一次预测多个样本。
+
+
+## 应用
+- 测试手撕 **KNN 分类算法**是否通过鸢尾花识别案例，见 `iris_analysis.py`
+- 测试手撕 **KNN 回归算法**是否通过加州房价数据集，见 `califonia_housing.py`

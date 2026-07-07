@@ -14,9 +14,9 @@ class MinMaxScaler:
         self.max_ = None
         self.min_ = None
         self.scaler_parameter = None
-        data_range = self.max_ - self.min_
-        self.data_range = np.where(data_range == 0, 1, data_range) # 防止 min == max 导致相除崩溃
-
+        
+        self.data_range = None
+        
     def fit(self,X):
         '''
         计算每个特征的最小值和最大值。
@@ -32,8 +32,9 @@ class MinMaxScaler:
         self.max_ = np.max(X,axis = 0)
         self.min_ = np.min(X,axis = 0)
 
-        self.scaler_parameter = (self.feature_range[1] - self.feature_range[0]) / ()
-
+        self.data_range = self.max_- self.min_
+        self.data_range = np.where(self.data_range == 0, 1, self.data_range) # 防止 min == max 导致相除崩溃
+        self.scaler_parameter = (self.feature_range[1] - self.feature_range[0]) / (self.data_range)
         
 
     def transform(self,X):
@@ -101,30 +102,30 @@ class MinMaxScaler:
         
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     X = np.array([
-#         [10, 100],
-#         [20, 200],
-#         [30, 300],
-#         [40, 400],
-#     ], dtype=float)
+    X = np.array([
+        [10, 100],
+        [20, 200],
+        [30, 300],
+        [40, 400],
+    ], dtype=float)
 
-#     expected_scaled = np.array([
-#         [0.0,        0.0],
-#         [1 / 3,      1 / 3],
-#         [2 / 3,      2 / 3],
-#         [1.0,        1.0],
-#     ])
-#     scaler = MinMaxScaler()
+    expected_scaled = np.array([
+        [0.0,        0.0],
+        [1 / 3,      1 / 3],
+        [2 / 3,      2 / 3],
+        [1.0,        1.0],
+    ])
+    scaler = MinMaxScaler()
 
-#     X_scaled = scaler.fit_transform(X)
+    X_scaled = scaler.fit_transform(X)
 
-#     print(X_scaled)
-#     print(np.allclose(X_scaled, expected_scaled))
+    print(X_scaled)
+    print(np.allclose(X_scaled, expected_scaled))
 
-#     X_original = scaler.inverse_transform(X_scaled)
+    X_original = scaler.inverse_transform(X_scaled)
 
-#     print(X_original)
-#     print(np.allclose(X_original, X))
+    print(X_original)
+    print(np.allclose(X_original, X))
 

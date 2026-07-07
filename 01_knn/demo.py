@@ -1,9 +1,11 @@
 import numpy as np
 from model import KNNClassifier
 from model import KNNRegression
-def main():
 
-    # 分类问题 KNN
+
+
+def test_classifier():
+    # 分类问题 KNN  
     x_train = np.array([
             [0, 0],
             [1, 1],
@@ -24,6 +26,8 @@ def main():
 
     print("分类问题：", res)
 
+
+def test_regression():
     # 回归问题 KNN
     x_train = np.array([
     [0, 0],
@@ -56,7 +60,10 @@ def main():
 
     print("回归问题:" ,res)
 
+def main():
 
+    test_classifier()
+    test_regression()
 
 
 if __name__ == "__main__":

@@ -32,7 +32,7 @@ def train_test_split(X,y,test_size = 0.2,shuffle = True,random_seed = None):
         X = X[shuffled_indices]
         y = y[shuffled_indices]
 
-    test_number = total_samples_number * test_size
+    test_number = int(total_samples_number * test_size)
 
     X_test = X[:test_number]
     y_test = y[:test_number]
