@@ -1,3 +1,4 @@
+from .base_estimator import BaseEstimator
 from .min_max_scaler import MinMaxScaler
 from .standard_scaler import StandardScaler
 from .model_selection import train_test_split
@@ -11,6 +12,7 @@ from .metrics import (
 )
 
 __all__ = [
+    "BaseEstimator",
     "MinMaxScaler",
     "StandardScaler",
     "train_test_split",
