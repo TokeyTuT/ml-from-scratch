@@ -1,6 +1,6 @@
 from .min_max_scaler import MinMaxScaler
 from .standard_scaler import StandardScaler
-from .train_test_split import train_test_split
+from .model_selection import train_test_split
 from .metrics import (
     accuracy_score,
     mean_absolute_error,

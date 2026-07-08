@@ -1,9 +1,8 @@
 import numpy as np
 
-def accuracy_score(y_true,y_pred):
-    '''
-    对分类问题的预测结果进行打分
-    '''
+
+def accuracy_score(y_true, y_pred):
+    """计算分类准确率。"""
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
 
@@ -19,9 +18,7 @@ def accuracy_score(y_true,y_pred):
 
 
 def mean_absolute_error(y_true, y_pred):
-    '''
-    计算 MAE 平均绝对误差
-    '''
+    """计算平均绝对误差 MAE。"""
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
 
@@ -36,9 +33,7 @@ def mean_absolute_error(y_true, y_pred):
     
 
 def mean_squared_error(y_true, y_pred):
-    """
-    计算 MSE 平均均方误差
-    """
+    """计算均方误差 MSE。"""
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
 
@@ -52,9 +47,7 @@ def mean_squared_error(y_true, y_pred):
     return np.mean((y_pred - y_true) ** 2)
 
 def root_mean_squared_error(y_true, y_pred):
-    """
-    计算 RMSE 平均均方根误差
-    """
+    """计算均方根误差 RMSE。"""
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
 
@@ -86,19 +79,17 @@ def r2_score(y_true, y_pred):
     if y_true.shape[0] == 0:
         raise ValueError("y_true and y_pred cannot be empty.")
 
-    # 计算残差平方和 (SS_res)
+    # 残差平方和，表示模型预测误差。
     ss_res = np.sum((y_true - y_pred) ** 2)
     
-    # 计算总平方和 (SS_tot)
+    # 总平方和，表示真实值相对均值的波动。
     y_mean = np.mean(y_true)
     ss_tot = np.sum((y_true - y_mean) ** 2)
     
-    # 特殊情况处理：防止分母为 0
-    # 如果真实值全部相等，且预测值也全对，R^2 为 1.0；否则（预测错了）为 0.0
+    # 当真实值全部相等时，分母为 0，需要单独处理。
     if ss_tot == 0:
         return 1.0 if ss_res == 0 else 0.0
         
-    # 套用公式返回结果
     return 1.0 - (ss_res / ss_tot)  
 
 
@@ -196,4 +187,3 @@ def validate_metrics():
 if __name__ == "__main__":
     if not validate_metrics():
         raise SystemExit(1)
-

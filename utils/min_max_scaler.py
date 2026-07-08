@@ -1,11 +1,14 @@
 import numpy as np
 
+
 class MinMaxScaler:
-    def __init__(self,feature_range = (0,1)):
-        '''
-        初始化 MinMaxScaler 默认下标映射范围 为0 ~ 1
-        :param feature_range: tuple, 下标映射的范围，默认值为(0,1)
-        '''
+    """Min-Max 特征归一化器。"""
+
+    def __init__(self, feature_range=(0, 1)):
+        """初始化归一化器。
+
+        :param feature_range: 目标缩放区间，默认值为 (0, 1)。
+        """
 
         if feature_range[0] >= feature_range[1]:
             raise ValueError("The first value of feature_range must be less than the second value.")
@@ -17,13 +20,13 @@ class MinMaxScaler:
         
         self.data_range = None
         
-    def fit(self,X):
-        '''
-        计算每个特征的最小值和最大值。
+    def fit(self, X):
+        """计算每个特征的最小值和最大值。
 
-        这个方法只从数据中学习缩放参数，不会对数据进行缩放
-        :param X : array-like, shape = (n_samples, n_features) 用于计算每个特征最小值和最大值的训练数据。
-        '''
+        该方法只从数据中学习缩放参数，不直接返回缩放后的数据。
+
+        :param X: 用于计算缩放参数的训练数据，形状为 (n_samples, n_features)。
+        """
         X = np.array(X)
 
         if X.ndim != 2:
@@ -33,17 +36,17 @@ class MinMaxScaler:
         self.min_ = np.min(X,axis = 0)
 
         self.data_range = self.max_- self.min_
-        self.data_range = np.where(self.data_range == 0, 1, self.data_range) # 防止 min == max 导致相除崩溃
+        # 常数列的范围为 0，替换为 1 以避免除零。
+        self.data_range = np.where(self.data_range == 0, 1, self.data_range)
         self.scaler_parameter = (self.feature_range[1] - self.feature_range[0]) / (self.data_range)
         
 
-    def transform(self,X):
-        '''
-        使用 fit 学习到的缩放参数，对输入数据进行缩放
-        :param X : array-like, shape = (n_samples, n_features)
-        需要被缩放的数据。
-        :return X_scaled:  ndarray, shape = (n_samples, n_features) 缩放后的数据。
-        '''
+    def transform(self, X):
+        """使用 fit 学到的参数缩放输入数据。
+
+        :param X: 待缩放数据，形状为 (n_samples, n_features)。
+        :return: 缩放后的数据，形状为 (n_samples, n_features)。
+        """
         X = np.array(X)
 
         if X.ndim != 2:
@@ -55,15 +58,12 @@ class MinMaxScaler:
         return (X - self.min_)*self.scaler_parameter + self.feature_range[0]
         
 
-    def fit_transform(self,X):
-        '''
-        先根据输入数据计算缩放参数，然后返回缩放后的数据。
-        :param X : array-like, shape = (n_samples, n_features)
-            用于拟合并进行缩放的数据。
+    def fit_transform(self, X):
+        """先学习缩放参数，再返回缩放后的数据。
 
-        :return X_scaled : ndarray, shape = (n_samples, n_features)
-            缩放后的数据。
-        '''
+        :param X: 用于拟合并缩放的数据，形状为 (n_samples, n_features)。
+        :return: 缩放后的数据，形状为 (n_samples, n_features)。
+        """
 
         X = np.array(X)
         self.fit(X)
@@ -71,13 +71,10 @@ class MinMaxScaler:
 
 
     def inverse_transform(self, X_scaled):
-        """
-        将缩放后的数据还原到原始特征尺度。
+        """将缩放后的数据还原到原始特征尺度。
  
-        :param X_scaled : array-like, shape = (n_samples, n_features)
-            已经经过 MinMaxScaler 缩放的数据。
-        :return X_original : ndarray, shape = (n_samples, n_features)
-            还原到原始尺度后的数据。
+        :param X_scaled: 已经缩放的数据，形状为 (n_samples, n_features)。
+        :return: 还原到原始尺度后的数据，形状为 (n_samples, n_features)。
         """
         self._check_is_fitted()
 
@@ -93,10 +90,9 @@ class MinMaxScaler:
             raise ValueError("The number of features in X_scaled must be the same as that during the fit process.")
 
         return (X_scaled - self.feature_range[0]) / self.scaler_parameter + self.min_
+
     def _check_is_fitted(self):
-        """
-        检查当前缩放器是否已经调用过 fit。
-        """
+        """检查当前缩放器是否已经调用过 fit。"""
         if self.min_ is None:
             raise ValueError("MinMaxScaler has not been fitted yet. Please call fit or fit_transform first.")
         
@@ -128,4 +124,3 @@ if __name__ == "__main__":
 
     print(X_original)
     print(np.allclose(X_original, X))
-

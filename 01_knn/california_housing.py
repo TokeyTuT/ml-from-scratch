@@ -13,6 +13,7 @@ DATA_PATH = PROJECT_ROOT / "datasets" / "california_housing_sample.csv"
 
 
 def demo():
+    """使用加州房价样例数据验证 KNN 回归器。"""
     data = np.genfromtxt(
         DATA_PATH,
         delimiter=",",
@@ -26,12 +27,11 @@ def demo():
     # 划分数据集
     X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2)
 
-    # 对数据进行标准化
+    # KNN 回归依赖距离计算，训练前先做标准化。
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    # 调用模型
     estimator = KNNRegression()
     estimator.fit(X_train,y_train)
     y_pred = estimator.predict(X_test)

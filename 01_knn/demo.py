@@ -5,7 +5,7 @@ from model import KNNRegression
 
 
 def test_classifier():
-    # 分类问题 KNN  
+    """验证 KNN 分类器在二维玩具数据上的预测结果。"""
     x_train = np.array([
             [0, 0],
             [1, 1],
@@ -28,7 +28,7 @@ def test_classifier():
 
 
 def test_regression():
-    # 回归问题 KNN
+    """验证 KNN 回归器在二维玩具数据上的预测结果。"""
     x_train = np.array([
     [0, 0],
     [1, 1],
@@ -61,7 +61,6 @@ def test_regression():
     print("回归问题:" ,res)
 
 def main():
-
     test_classifier()
     test_regression()
 

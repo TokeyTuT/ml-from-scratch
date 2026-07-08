@@ -1,77 +1,110 @@
-# UTILS 实现指引
+# Utils 实现指引
 
- ## 目标
-   总体目标：实现机器学习中几个常用的工具函数：
-   * 数据集划分
-   * 模型评估（模型准确度）
-   * 归一化函数
-   * 数据标准化函数
-   * 交叉验证的函
+## 目标
 
+`utils/` 用于存放多个算法都会用到的通用工具。目前包含：
+
+- 数据集划分：`train_test_split`
+- 分类评估：`accuracy_score`
+- 回归评估：`mean_absolute_error`、`mean_squared_error`、`root_mean_squared_error`、`r2_score`
+- 特征归一化：`MinMaxScaler`
+- 特征标准化：`StandardScaler`
 
 ## 数据集划分
-位于文件 `train_test_split.py` 下, 方法为：`train_test_split(X,y,test_size = 0.2,shuffle = True,random_seed = None)` 
-实现细节见注释。
 
-## 数据的归一化
-数据的预处理很重要的一步就是**数据的归一化**，目的是把原始数据映射到\[min,max\]之间
+实现文件：[model_selection.py](model_selection.py)
 
-参考公式
+核心函数：
+
+```python
+train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None)
+```
+
+参数说明：
+
+- `X`：二维特征矩阵，形状为 `(n_samples, n_features)`。
+- `y`：一维标签或目标值数组，形状为 `(n_samples,)`。
+- `test_size`：测试集比例，取值范围为 `[0, 1]`。
+- `shuffle`：是否在划分前打乱样本。
+- `random_seed`：随机种子，用于复现实验结果。
+
+## Min-Max 归一化
+
+实现文件：[min_max_scaler.py](min_max_scaler.py)
+
+Min-Max 归一化会把原始数据映射到指定区间，默认区间为 `[0, 1]`。
+
 $$
-X'=\frac {x - min} {max - min}
-$$
-$$
-               X''=X'(max - min) + min
+X' = \frac{X - X_{min}}{X_{max} - X_{min}}
 $$
 
-*   $X'$–>基于公式算出来的结果
+如果目标区间为 `[a, b]`，则继续做线性变换：
 
-*   $X''$–>最终的结果
-
-*   *min*–> 区间最小值
-
-*   *max*–> 区间最大值
-
-**弊端**：
-容易受到最大值和最小值的影响，所以他一般用于处理 **小数据集**
-
-
-见文件  `min_max_scaler.py` 
-
-代码鲁棒性：
-* 这里加了判断 $max - min$ 是否等于 0，如果等于 0，那么我们把他置为 1，防止相除的时候出现异常值。
-
-## 数据标准化
-
-通过对原始数据进行标准化，转换为均值为 0 和标准差为 1 的标准正态分布的的数据
 $$
-X'=\frac{x-mean}{\sigma}
+X'' = X' \times (b - a) + a
 $$
-*mean*为当前列的平均值，*σ* 代表当前列的标准差
 
-场景： 
-	适用于 **大数据集** 的处理
+注意点：
 
+- 该方法容易受到最大值和最小值影响。
+- 当某个特征的 `max - min = 0` 时，代码会把分母替换为 1，避免除零错误。
 
-## 数据的评估 `metrics.py`
-* 对于分类模型，采用 `accucacy_score(y_true,y_pred)` 对模型打分
-* 对于回归模型，采用决定系数 $R^2$ `r2_score(y_true,y_pred)` 对模型打分
-* 此外，提供了 MAE、MSE、RMSE 的实现
+## Z-Score 标准化
 
-1. 均方误差 (MSE, Mean Squared Error)
-  $$
-  MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
-  $$
-2. 平均绝对误差 (MAE, Mean Absolute Error
-   )
-   $$
-   MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
-   $$
-3. 均方根误差 (RMSE, Root Mean Squared Error)
-   $$
-   RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2} = \sqrt{MSE}
-   $$
-4. 决定系数 ($R^2$, Coefficient of Determination)
+实现文件：[standard_scaler.py](standard_scaler.py)
+
+标准化会把每个特征转换为均值为 0、标准差为 1 的形式。
+
+$$
+X' = \frac{X - mean}{\sigma}
+$$
+
+其中，`mean` 是当前特征列的均值，`\sigma` 是当前特征列的标准差。
+
+适用场景：
+
+- KNN、线性回归、逻辑回归、PCA、神经网络等对特征尺度敏感的算法。
+- 特征量纲不同、数值范围差异较大的数据集。
+
+## 模型评估
+
+实现文件：[metrics.py](metrics.py)
+
+分类指标：
+
+- `accuracy_score(y_true, y_pred)`：准确率。
+
+回归指标：
+
+- `mean_absolute_error(y_true, y_pred)`：平均绝对误差。
+- `mean_squared_error(y_true, y_pred)`：均方误差。
+- `root_mean_squared_error(y_true, y_pred)`：均方根误差。
+- `r2_score(y_true, y_pred)`：决定系数。
+
+常用公式：
+
+$$
+MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+$$
+
+$$
+MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+$$
+RMSE = \sqrt{MSE}
+$$
+
 $$
 R^2 = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}
 $$
+
+## 交叉验证与网格搜索
+
+交叉验证和网格搜索通常配合使用：
+
+1. 网格搜索枚举多组超参数。
+2. 每组超参数通过交叉验证评估。
+3. 选择平均验证得分最高的一组参数。
+
+当前 `model_selection.py` 中已经实现 `GridSearchCV` 

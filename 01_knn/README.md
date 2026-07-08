@@ -23,15 +23,15 @@ class KNNClassifier:
     def predict(self, X):
         ...
 
-    def _predict_one(self,x)
+    def _predict_one(self, x):
         ...
 ```
 
 ## 实现步骤
 
 1. 保存训练数据 `X_train` 和标签 `y_train`。
-2. 由于 KNN 算法是一种**懒惰学习**算法，所以在进行 `fit` 的时候不需要进行学习，只负责传参的作用
-3. 距离函数，本项目中实现了几个基本的距离函数，在 util.py 文件下，实现了欧式距离、切比雪夫距离、曼哈顿距离。
+2. KNN 是一种**懒惰学习**算法，`fit` 阶段只需要保存训练数据，不需要更新模型参数。
+3. 距离函数位于 `util.py`，目前包含欧氏距离、切比雪夫距离和曼哈顿距离。
 4. 如果用户不传入距离函数，默认使用欧式距离。
 5. 对每个待预测样本，计算它到所有训练样本的距离。
 6. 找出距离最近的 `k` 个样本。
@@ -53,5 +53,6 @@ class KNNClassifier:
 
 
 ## 应用
-- 测试手撕 **KNN 分类算法**是否通过鸢尾花识别案例，见 `iris_analysis.py`
-- 测试手撕 **KNN 回归算法**是否通过加州房价数据集，见 `califonia_housing.py`
+
+- 使用鸢尾花数据集验证 **KNN 分类算法**，见 `iris_analysis.py`。
+- 使用加州房价样例数据验证 **KNN 回归算法**，见 `california_housing.py`。
