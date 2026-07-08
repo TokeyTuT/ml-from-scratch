@@ -86,7 +86,10 @@ class GridSearchCV:
         :param refit: 是否使用最优参数在完整训练集上重新训练模型
         :param verbose: 是否输出搜索过程信息
         """
-        pass
+        self.estimator = estimator
+        
+
+
 
     def fit(self, X, y):
         """
