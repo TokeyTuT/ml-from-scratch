@@ -4,6 +4,8 @@
 
 `utils/` 用于存放多个算法都会用到的通用工具。目前包含：
 
+- 模型的顶级父类: `BaseEstimator`, 位于 `base_estimator.py` 
+
 - 数据集划分：`train_test_split`
 - 分类评估：`accuracy_score`
 - 回归评估：`mean_absolute_error`、`mean_squared_error`、`root_mean_squared_error`、`r2_score`

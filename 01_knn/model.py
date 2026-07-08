@@ -2,6 +2,7 @@
 
 import numpy as np
 from util import euclidean_distance
+from utils.base_estimator import BaseEstimator
 
 
 def _validate_n_neighbors(n_neighbors):
@@ -39,7 +40,7 @@ def _check_is_fitted(x_train, y_train):
         raise ValueError("Model has not been fitted yet. Call fit before predict.")
 
 
-class KNNClassifier:
+class KNNClassifier(BaseEstimator):
     """KNN 分类器。
 
     默认使用欧氏距离，也可以传入自定义距离函数。
@@ -52,6 +53,7 @@ class KNNClassifier:
         :param distance_metric: 距离函数，需要接收 (X_train, x)，并返回距离数组。
         """
         _validate_n_neighbors(n_neighbors)
+        self.n_neighbors = n_neighbors
         self.k = n_neighbors
         self.x_train = None
         self.y_train = None
@@ -69,8 +71,9 @@ class KNNClassifier:
         self.x_train, self.y_train = _prepare_training_data(
             x_train,
             y_train,
-            self.k,
+            self.n_neighbors,
         )
+        return self
 
 
     def predict(self, x_test):
@@ -93,13 +96,13 @@ class KNNClassifier:
         # argsort 返回从近到远的训练样本索引。
         sorted_indices = np.argsort(distances)
 
-        nearest_labels = self.y_train[sorted_indices[: self.k]]
+        nearest_labels = self.y_train[sorted_indices[: self.n_neighbors]]
         labels, count = np.unique(nearest_labels, return_counts=True)
 
         return labels[np.argmax(count)]
 
 
-class KNNRegression:
+class KNNRegression(BaseEstimator):
     """KNN 回归器。"""
 
     def __init__(self, n_neighbors=3, distance_metric=euclidean_distance):
@@ -109,6 +112,7 @@ class KNNRegression:
         :param distance_metric: 距离函数，需要接收 (X_train, x)，并返回距离数组。
         """
         _validate_n_neighbors(n_neighbors)
+        self.n_neighbors = n_neighbors
         self.k = n_neighbors
         self.distance_metric = distance_metric
         self.x_train = None
@@ -123,8 +127,9 @@ class KNNRegression:
         self.x_train, self.y_train = _prepare_training_data(
             x_train,
             y_train,
-            self.k,
+            self.n_neighbors,
         )
+        return self
 
     def predict(self, x_test):
         """对多个样本进行回归预测。
@@ -146,4 +151,4 @@ class KNNRegression:
         # argsort 返回从近到远的训练样本索引。
         sorted_indices = np.argsort(distances)
 
-        return np.mean(self.y_train[sorted_indices[: self.k]])
+        return np.mean(self.y_train[sorted_indices[: self.n_neighbors]])
