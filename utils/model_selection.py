@@ -53,14 +53,14 @@ def train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None):
 # 交叉验证 KFold
 class KFold:
     """
-    交叉验证 KFlod
+    交叉验证 KFold
     核心思想是：
     不要只做一次训练集/验证集划分，而是把数据平均分成 K 份，每次拿其中 1 份做验证集，剩下 K-1 份做训练集，重复 K 次。
     """
 
     def __init__(self, n_splits=5, shuffle=True, random_seed=None):
         """
-        初始化 KFlod
+        初始化 KFold
 
         :param n_splits: int 目标划分数
         :param shuffle: bool 是否打乱划分 默认为 True
