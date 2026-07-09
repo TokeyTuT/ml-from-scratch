@@ -43,6 +43,46 @@ def train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None):
     return X_train, X_test, y_train, y_test
 
 
+# 交叉验证 KFlod
+class KFlod:
+    """
+    交叉验证 KFlod 
+    核心思想是：
+    不要只做一次训练集/验证集划分，而是把数据平均分成 K 份，每次拿其中 1 份做验证集，剩下 K-1 份做训练集，重复 K 次。
+    """
+    def __init__(
+            self,
+            n_splits=5,
+            shuffle=True,
+            random_seed=None
+            ):
+        if not isinstance(n_splits,int) or n_split >= 2:
+            raise ValueError("n_splits must be an integer >= 2")
+
+        self.n_splits = n_splits
+        self.shuffle = shuffle
+        self.random_seed = random_seed
+
+    def split(self,X):
+        """
+        对矩阵 X 进行切分
+        :param X: 特征矩阵，形状为(n_samples,n_features)
+        """ 
+
+        X = np.array(X)
+        n_samples = len(X)
+
+        if self.n_splits > n_samples:
+            raise ValueError("n_splits cannot be greater than n_samples")
+        
+        indices = np.arange(n_samples)
+        if self.shuffle:
+            rng = np.random.default_rng(self.random_seed)
+            indices = rng.permutation(n_samples)
+        
+        fold_size = np.full(self.n_splits,n_samples//self.n_splits)
+
+
 class GridSearchCV:
     """
     网格搜索交叉验证工具。
