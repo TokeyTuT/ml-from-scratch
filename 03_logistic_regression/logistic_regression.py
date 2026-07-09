@@ -48,56 +48,66 @@ class LogisticRegression(BaseEstimator):
         self.loss_history = []
 
     def fit(self, X, y):
-        """训练线性回归模型。
+        """训练逻辑回归模型。
 
         :param X: 训练特征矩阵，形状通常为 (n_samples, n_features)。
         :param y: 训练目标值数组，形状通常为 (n_samples,)。
         :return: 训练后的模型自身。
         :raises ValueError: 当输入为空、维度不正确或样本数量不一致时抛出。
         """
-        X, y = self._validate_prediction_data(X)
+        X, y = self._validate_training_data(X, y)
 
-        sample_numbers = len(X)
-        feature_numbers = len(y)
+        sample_numbers, feature_numbers = X.shape
 
         self.weights = np.zeros(feature_numbers)
         self.bias = 0
+        self.loss_history = []
 
         # 开始梯度学习
         last_loss = self._compute_loss(y, y_pred=self._compute_prediction(X))
-        for _ in self.epochs:
+        self.loss_history.append(last_loss)
+        for _ in range(self.epochs):
 
             y_pred = self._compute_prediction(X)
 
             errors = y_pred - y
 
             dw = np.dot(X.T, errors)
-            self.weight = self.weight - self.learning_rate * dw
+            self.weights = self.weights - self.learning_rate * dw / sample_numbers
 
             if self.fit_intercept:
                 db = np.sum(errors) / sample_numbers
                 self.bias = self.bias - self.learning_rate * db
 
             # 观察是否可以停止学习
-            curr_loss = self._compute_loss(y, y_pred=self._compute_predictions(X))
+            curr_loss = self._compute_loss(y, y_pred=self._compute_prediction(X))
+            self.loss_history.append(curr_loss)
             if np.abs(curr_loss - last_loss) <= self.tolerance:
                 break
             last_loss = curr_loss
 
         return self
 
-    def predict(self, X):
-        """使用训练后的模型预测连续目标值。
+    def predict_proba(self, X):
+        """预测样本属于正类 1 的概率。
 
         :param X: 待预测特征矩阵，形状通常为 (n_samples, n_features)。
-        :return: 预测值数组，形状通常为 (n_samples,)。
+        :return: 正类概率数组，形状通常为 (n_samples,)。
         :raises ValueError: 当模型尚未训练或输入特征维度不匹配时抛出。
         """
-
         self._check_is_fitted()
         X = self._validate_prediction_data(X)
-        y_pred = self._compute_predictions(X)
-        return self._transform_probability_to_classification(y_pred)
+        return self._compute_prediction(X)
+
+    def predict(self, X):
+        """使用训练后的模型预测分类标签。
+
+        :param X: 待预测特征矩阵，形状通常为 (n_samples, n_features)。
+        :return: 分类结果数组，形状通常为 (n_samples,)，元素为 0 或 1。
+        :raises ValueError: 当模型尚未训练或输入特征维度不匹配时抛出。
+        """
+        y_pred_probability = self.predict_proba(X)
+        return self._transform_probability_to_classification(y_pred_probability)
 
     def _compute_prediction(self, X):
         """根据当前参数计算预测值。
@@ -110,8 +120,9 @@ class LogisticRegression(BaseEstimator):
         :return: 预测值数组，形状通常为 (n_samples,)。
         """
 
-        Z = np.dot(X, self.weights) + self.bias
-        return 1 / (1 + np.exp(-Z))
+        z = np.dot(X, self.weights) + self.bias
+        z = np.clip(z, -500, 500)
+        return 1 / (1 + np.exp(-z))
 
     def _compute_loss(self, y_true, y_pred):
         """计算当前预测结果的损失函数
@@ -130,21 +141,25 @@ class LogisticRegression(BaseEstimator):
 
     def _transform_probability_to_classification(self, y_pred_probability):
         """
-        将回归计算出来的概率转换为阴阳样本
+        将模型计算出来的概率转换为阴性或阳性样本。
+
         :param y_pred_probability: 模型预测的概率 尚未转换为阴阳样本，大小 (sample_numbers,)
+        :return: 分类结果数组，元素为 0 或 1。
         """
 
         return np.array([1 if p >= self.threshold else 0 for p in y_pred_probability])
 
     def score(self, X, y):
-        """计算模型在给定数据上的回归得分。
+        """计算模型在给定数据上的分类准确率。
+
         对于二元逻辑回归问题，我们采用 accuracy 对模型进行打分
 
         :param X: 验证或测试特征矩阵，形状通常为 (n_samples, n_features)。
-        :param y: 真实目标值数组，形状通常为 (n_samples,)。
+        :param y: 真实分类标签，形状通常为 (n_samples,)。
         :return: 模型得分，通常为一个浮点数。
         """
-        self._validate_scoring_data(X, y)
+        self._check_is_fitted()
+        X, y = self._validate_scoring_data(X, y)
         return accuracy_score(y, y_pred=self.predict(X))
 
     def _as_float_array(self, values, name):
@@ -173,6 +188,8 @@ class LogisticRegression(BaseEstimator):
             raise ValueError("X must not contain NaN or infinite values.")
         if not np.all(np.isfinite(y)):
             raise ValueError("y must not contain NaN or infinite values.")
+        if not np.all((y == 0) | (y == 1)):
+            raise ValueError("y must contain only 0 or 1 for binary classification.")
 
         return X, y
 
@@ -204,6 +221,8 @@ class LogisticRegression(BaseEstimator):
             raise ValueError("X and y must contain the same number of samples.")
         if not np.all(np.isfinite(y)):
             raise ValueError("y must not contain NaN or infinite values.")
+        if not np.all((y == 0) | (y == 1)):
+            raise ValueError("y must contain only 0 or 1 for binary classification.")
 
         return X, y
 
