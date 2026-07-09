@@ -40,4 +40,3 @@ def chebyshev_distance(X_train, x):
     :return: 每个训练样本到 x 的距离，形状为 (n_samples,)。
     """
     return np.max(np.abs(X_train - x), axis=1)
-

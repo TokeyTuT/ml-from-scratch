@@ -18,6 +18,7 @@ Use a local virtual environment:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
+python -m pip install -e .
 ```
 
 Run a quick syntax check:

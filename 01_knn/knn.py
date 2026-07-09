@@ -1,7 +1,7 @@
 """KNN 分类与回归模型。"""
 
 import numpy as np
-from util import euclidean_distance
+from distance import euclidean_distance
 from utils.base_estimator import BaseEstimator
 
 

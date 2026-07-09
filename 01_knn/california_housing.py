@@ -1,13 +1,10 @@
-import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 import numpy as np
 from utils import StandardScaler,train_test_split,root_mean_squared_error,r2_score
-from model import KNNRegression
+from knn import KNNRegression
 
 DATA_PATH = PROJECT_ROOT / "datasets" / "california_housing_sample.csv"
 

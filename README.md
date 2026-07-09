@@ -32,6 +32,12 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
+安装本仓库的本地工具包，便于各算法目录直接导入 `utils`：
+
+```bash
+python -m pip install -e .
+```
+
 运行语法检查：
 
 ```bash

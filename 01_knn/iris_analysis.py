@@ -1,12 +1,9 @@
-import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 import numpy as np
-from model import KNNClassifier
+from knn import KNNClassifier
 from utils import MinMaxScaler, train_test_split, accuracy_score
 
 
