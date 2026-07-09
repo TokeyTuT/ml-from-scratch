@@ -21,7 +21,7 @@ def train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None):
         raise ValueError("y must be a 1D array.")
     if X.ndim != 2:
         raise ValueError("X must be a 2D array.")
-    
+
     total_samples_number = X.shape[0]
 
     # 固定随机种子，保证同一份数据可以复现相同划分。
@@ -46,41 +46,55 @@ def train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None):
 # 交叉验证 KFlod
 class KFlod:
     """
-    交叉验证 KFlod 
+    交叉验证 KFlod
     核心思想是：
     不要只做一次训练集/验证集划分，而是把数据平均分成 K 份，每次拿其中 1 份做验证集，剩下 K-1 份做训练集，重复 K 次。
     """
-    def __init__(
-            self,
-            n_splits=5,
-            shuffle=True,
-            random_seed=None
-            ):
-        if not isinstance(n_splits,int) or n_split >= 2:
+
+    def __init__(self, n_splits=5, shuffle=True, random_seed=None):
+        if not isinstance(n_splits, int) or n_splits <= 2:
             raise ValueError("n_splits must be an integer >= 2")
 
         self.n_splits = n_splits
         self.shuffle = shuffle
         self.random_seed = random_seed
 
-    def split(self,X):
+    def split(self, X):
         """
         对矩阵 X 进行切分
         :param X: 特征矩阵，形状为(n_samples,n_features)
-        """ 
+        """
 
         X = np.array(X)
         n_samples = len(X)
 
         if self.n_splits > n_samples:
             raise ValueError("n_splits cannot be greater than n_samples")
-        
+
         indices = np.arange(n_samples)
         if self.shuffle:
             rng = np.random.default_rng(self.random_seed)
             indices = rng.permutation(n_samples)
-        
-        fold_size = np.full(self.n_splits,n_samples//self.n_splits)
+
+        fold_sizes = np.full(self.n_splits, n_samples // self.n_splits)
+        fold_sizes[: n_samples % self.n_splits] += 1 # 处理不能被整除的样本
+
+        current = 0
+        for fold_size in fold_sizes:
+            start = current
+            stop = current + fold_size
+
+            test_indices = indices[start:stop] # 测试集
+            train_indices = np.concatenate([indices[:start],indices[stop:]])   # 训练集    
+
+            yield train_indices,test_indices # yield 语法，依次返回 (训练集，测试集)
+
+            current = stop
+
+
+# 网格搜索 
+class ParameterGrid:
+    pass
 
 
 class GridSearchCV:
@@ -127,9 +141,6 @@ class GridSearchCV:
         :param verbose: 是否输出搜索过程信息
         """
         self.estimator = estimator
-        
-
-
 
     def fit(self, X, y):
         """
@@ -209,3 +220,13 @@ class GridSearchCV:
         :return: 验证集得分
         """
         pass
+
+
+if __name__ == '__main__':
+    es = KFlod(5,False)
+
+    X = np.arange(17)
+
+    res = es.split(X)
+    for train_indices,test_indices in res:
+        print(train_indices,test_indices)
