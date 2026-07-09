@@ -25,7 +25,7 @@ class LinearRegression(BaseEstimator):
         epochs=1000,
         fit_intercept=True,
         tolerance=1e-12,
-        solver="granient_descent" # 此处暂时用梯度下降法，正规方程法先鸽一会
+        solver="gradient_descent" # 此处暂时用梯度下降法，正规方程法先鸽一会
     ):
         """初始化线性回归模型。
 
