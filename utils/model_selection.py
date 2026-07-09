@@ -1,4 +1,6 @@
 import numpy as np
+from base_estimator import BaseEstimator
+from metrics import r2_score
 
 
 def train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None):
@@ -43,8 +45,8 @@ def train_test_split(X, y, test_size=0.2, shuffle=True, random_seed=None):
     return X_train, X_test, y_train, y_test
 
 
-# 交叉验证 KFlod
-class KFlod:
+# 交叉验证 KFold
+class KFold:
     """
     交叉验证 KFlod
     核心思想是：
@@ -52,6 +54,14 @@ class KFlod:
     """
 
     def __init__(self, n_splits=5, shuffle=True, random_seed=None):
+        """
+        初始化 KFlod
+        
+        :param n_splits: int 目标划分数
+        :param shuffle: bool 是否打乱划分 默认为 True
+        :param random_seed: 可选 随机种子    
+
+        """
         if not isinstance(n_splits, int) or n_splits <= 2:
             raise ValueError("n_splits must be an integer >= 2")
 
@@ -92,9 +102,53 @@ class KFlod:
             current = stop
 
 
-# 网格搜索 
+# 网格搜索
 class ParameterGrid:
-    pass
+    """
+    网格搜索
+    核心思想: 把想要尝试的超参数组合全部枚举一遍，然后用验证集或交叉验证选表现最好的那一组。
+    """
+    def __init__(self,param_dict):
+        """
+        初始化 ParameterGrid
+
+        :param param_grid: dict 目标枚举超参字典
+        """
+        if not isinstance(param_dict,dict):
+            return TypeError("param_grid must be a dict")
+
+        self.param_grid = param_dict
+
+    def __iter__(self):
+        """
+            实现迭代器，可以直接 for 循环遍历这个类：
+                for params in ParameterGrid(param_grid):
+        """
+
+        results = [{}]
+
+        for key in self.param_grid:
+            new_results = []
+
+            for old_params in results:
+                for value in self.param_grid[key]:
+                    new_params = old_params.copy()
+                    new_params[key] = value
+                    new_results.append(new_params)
+
+            results = new_results
+
+        for params in results:
+            yield params
+
+    def __len__(self):
+        """
+        获取一共有多少组超参
+        """
+        total = 1
+        for values in self.param_grid.values():
+            totol *= len(values)
+        return total
 
 
 class GridSearchCV:
@@ -120,27 +174,42 @@ class GridSearchCV:
     def __init__(
         self,
         estimator,
-        para_dict,
+        param_dict,
         cv=5,
-        scoring=None,
         shuffle=True,
         random_seed=None,
         refit=True,
-        verbose=False,
     ):
         """
         初始化网格搜索交叉验证器。
 
         :param estimator: 待调参的模型对象
-        :param para_dict: 参数搜索空间，格式为 {参数名: 参数候选值列表}
+        :param param_dict: 参数搜索空间，格式为 {参数名: 参数候选值列表}
         :param cv: 交叉验证折数，默认 5
-        :param scoring: 评分函数，默认 None
         :param shuffle: 是否在划分前打乱数据，默认 True
         :param random_seed: 随机种子，用于复现实验结果
         :param refit: 是否使用最优参数在完整训练集上重新训练模型
-        :param verbose: 是否输出搜索过程信息
         """
+        if not isinstance(estimator, BaseEstimator):
+            raise TypeError("estimator must inherit from BaseEstimator.")
+
+        if not isinstance(param_dict, dict):
+            raise TypeError("param_grid must be a dict.")
+
+        if not isinstance(cv, int) or cv < 2:
+            raise ValueError("cv must be an integer >= 2.")
+
+        self.cv = KFold(n_splits=self.cv, shuffle=True,random_seed = self.random_seed)
         self.estimator = estimator
+        self.param_grid = param_dict
+        self.shuffle = shuffle
+        self.random_seed = random_seed
+        self.refit = refit
+
+        self.cv_result_ = []
+        self.best_param_ = None
+        self.best_score_ = None
+        self.best_estimator_ = None
 
     def fit(self, X, y):
         """
@@ -153,8 +222,42 @@ class GridSearchCV:
         :param y: 标签或目标值数组，形状为 (样本数,)
         :return: self
         """
-        pass
+        X = np.asarray(X)
+        y = np.asarray(y)
 
+        best_score = -np.inf
+        best_params = None
+
+        for params in ParameterGrid(self.param_grid):
+            model = self._clone_estimator()
+            model.set_params(**params)        
+
+            scores = self._cross_val_score(model,X,y)
+            mean_score = np.mean(scores)
+
+            self.cv_result_.append(
+                {
+                    "params":params,
+                    "mean_score":mean_score,
+                    "std_score:":np.std(scores),
+                    "scores":scores
+                }
+            )
+
+            if mean_score > self.best_score:
+                best_params = params
+                best_score = mean_score
+
+        self.best_params_ = best_params
+        self.best_score_ = best_score
+
+        if self.refit:
+            self.best_estimator_ = self._clone_estimator(self.estimator)
+            self.best_estimator_.set_params(**self.best_params_)
+            self.best_estimator_.fit(X, y)
+    
+        return self
+    
     def predict(self, X):
         """
         使用最优模型进行预测。
@@ -165,26 +268,15 @@ class GridSearchCV:
         :param X: 待预测的特征矩阵
         :return: 预测结果
         """
-        pass
+        if not self.refit:
+            raise ValueError("refit must be True if you want to use the method")
 
-    def _generate_param_combinations(self, para_dict):
-        """
-        根据参数网格生成所有参数组合。
+        if self.best_estimator_ is None:
+            raise ValueError("GridSearchCV must be fitted before predict()")
 
-        :param para_dict: 参数搜索空间字典
-        :return: 参数组合列表，每个元素都是一个参数字典
-        """
-        pass
+        return self.best_estimator_.predict(X)
 
-    def _split_k_fold(self, X, y):
-        """
-        生成 K 折交叉验证的训练集和验证集索引。
-
-        :param X: 特征矩阵
-        :param y: 标签或目标值数组
-        :return: K 折索引列表，每个元素为 (train_indices, val_indices)
-        """
-        pass
+        
 
     def _clone_estimator(self):
         """
@@ -195,38 +287,40 @@ class GridSearchCV:
 
         :return: 克隆后的模型对象
         """
-        pass
+        if not hasattr(self.estimator, "get_params"):
+            raise TypeError("estimator must implement get_params()")
 
-    def _set_params(self, model, params):
+        params = self.estimator.get_params()
+        return self.estimator.__class__(**params)
+
+    def _cross_val_score(self, estimator , X, y):
         """
-        为模型设置当前参数组合。
+        计算模型在验证集上的得分,规定使用 r2 打分
+        使用交叉验证取平均值
 
-        :param model: 待设置参数的模型对象
-        :param params: 当前参数组合字典
-        :return: None
-        """
-        pass
-
-    def _score(self, model, X_val, y_val):
-        """
-        计算模型在验证集上的得分。
-
-        如果传入 scoring，则使用 scoring 计算分数；
-        否则可以尝试调用模型自身的 score 方法。
-
-        :param model: 已训练好的模型对象
+        :param estimator: 要训练的模型对象
         :param X_val: 验证集特征矩阵
         :param y_val: 验证集真实标签或目标值
-        :return: 验证集得分
+        :return: list 验证集得分列表 
         """
-        pass
+        X = np.array(X)
+        y = np.array(y)
+
+        if X.shape[0] != y.shape[0]:
+            raise ValueError("X and y must have the same number of samples")
+
+        scores = []
+
+        for train_indices,test_indices in self.cv.split(X):
+            model = self._clone_estimator(estimator)
+
+            X_train = X[train_indices]
+            X_test = X[test_indices]
+            y_train = y[train_indices]
+            y_test = y[test_indices]
+            model.fit(X_train,y_train)
+            scores.append(r2_score(y_true=y_test,y_pred=model.predict(X_test)))
+
+        return scores
 
 
-if __name__ == '__main__':
-    es = KFlod(5,False)
-
-    X = np.arange(17)
-
-    res = es.split(X)
-    for train_indices,test_indices in res:
-        print(train_indices,test_indices)
