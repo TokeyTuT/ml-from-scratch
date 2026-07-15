@@ -1,17 +1,14 @@
 from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 import numpy as np
 from knn import KNNClassifier
 from utils import MinMaxScaler, train_test_split, accuracy_score,GridSearchCV,StandardScaler
 
-DATA_PATH = PROJECT_ROOT / "datasets" / "iris.csv"
+DATA_DIR = Path(__file__).parent
 
 def demo():
     """使用鸢尾花数据集验证 KNN 分类器。"""
     data = np.genfromtxt(
-        DATA_PATH,
+        DATA_DIR / "iris.csv",
         delimiter=",",
         dtype=str,
         skip_header=1
@@ -39,7 +36,7 @@ def demo():
 def demo2():
     """使用鸢尾花数据集验证 KNN 分类器。"""
 
-    data = np.genfromtxt(DATA_PATH, delimiter=",", dtype=str, skip_header=1)
+    data = np.genfromtxt(DATA_DIR / "iris.csv", delimiter=",", dtype=str, skip_header=1)
 
     # 只使用前三个数值特征，标签位于最后一列。
     X = data[:, :3].astype(dtype=float)

@@ -1,18 +1,14 @@
 from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
 import numpy as np
 from utils import StandardScaler,train_test_split,root_mean_squared_error,r2_score
 from knn import KNNRegression
 
-DATA_PATH = PROJECT_ROOT / "datasets" / "california_housing_sample.csv"
 
 
 def demo():
     """使用加州房价样例数据验证 KNN 回归器。"""
     data = np.genfromtxt(
-        DATA_PATH,
+        "califonia_housing_samples.csv",
         delimiter=",",
         dtype=float,
         skip_header=1
