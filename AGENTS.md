@@ -4,7 +4,7 @@
 
 This repository is a from-scratch machine learning practice project. Each numbered directory is dedicated to one algorithm:
 
-- `01_knn/` through `08_neural_network/`: algorithm-specific notes, implementation files, demos, and tests.
+- `01_knn/` through `11_xgboost/`: algorithm-specific notes, implementation files, demos, and tests.
 - `utils/`: shared helpers such as metrics, preprocessing, or dataset utilities.
 - `datasets/`: small committed sample data only. Keep large or local data in ignored paths such as `datasets/raw/` and `datasets/processed/`.
 - `main.py`: optional local scratch entry point.

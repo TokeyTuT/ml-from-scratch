@@ -20,6 +20,9 @@ ml-from-scratch/
 ├── 06_kmeans/
 ├── 07_pca/
 ├── 08_neural_network/
+├── 09_adaboost/
+├── 10_gbdt/
+├── 11_xgboost/
 ├── utils/
 ├── datasets/
 └── README.md
