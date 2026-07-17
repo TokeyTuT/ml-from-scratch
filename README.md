@@ -12,23 +12,23 @@
 
 ```text
 ml-from-scratch/
-├── 01_knn/
-├── 02_linear_regression/
-├── 03_logistic_regression/
-├── 04_decision_tree/
-├── 05_naive_bayes/
-├── 06_kmeans/
-├── 07_pca/
-├── 08_neural_network/
-├── 09_adaboost/
-├── 10_gbdt/
-├── 11_xgboost/
+├── knn/
+├── linear_regression/
+├── logistic_regression/
+├── decision_tree/
+├── naive_bayes/
+├── kmeans/
+├── pca/
+├── neural_network/
+├── adaboost/
+├── gbdt/
+├── xgboost/
 ├── utils/
 ├── datasets/
 └── README.md
 ```
 
-各编号目录对应一个算法主题，目录内通常包含算法笔记、核心实现、示例脚本和测试文件。
+各算法目录对应一个学习主题，目录内通常包含算法笔记、核心实现、示例脚本和测试文件。
 共享的数据处理、评估指标或基类工具放在 `utils/`，小型样例数据放在 `datasets/`。
 
 ## 使用方式
@@ -61,7 +61,7 @@ python -m pytest
 运行某个算法示例：
 
 ```bash
-python 01_knn/demo.py
+python knn/demo.py
 ```
 
 ## 学习顺序

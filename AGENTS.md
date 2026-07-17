@@ -2,14 +2,14 @@
 
 ## Project Structure & Module Organization
 
-This repository is a from-scratch machine learning practice project. Each numbered directory is dedicated to one algorithm:
+This repository is a from-scratch machine learning practice project. Each algorithm directory is dedicated to one topic:
 
-- `01_knn/` through `11_xgboost/`: algorithm-specific notes, implementation files, demos, and tests.
+- `knn/` through `xgboost/`: algorithm-specific notes, implementation files, demos, and tests.
 - `utils/`: shared helpers such as metrics, preprocessing, or dataset utilities.
 - `datasets/`: small committed sample data only. Keep large or local data in ignored paths such as `datasets/raw/` and `datasets/processed/`.
 - `main.py`: optional local scratch entry point.
 
-Keep each algorithm self-contained. For example, KNN code should live under `01_knn/`, not in another algorithm directory.
+Keep each algorithm self-contained. For example, KNN code should live under `knn/`, not in another algorithm directory.
 
 ## Build, Test, and Development Commands
 
@@ -36,7 +36,7 @@ python -m pytest
 Run a specific demo, for example:
 
 ```bash
-python 01_knn/demo.py
+python knn/demo.py
 ```
 
 ## Coding Style & Naming Conventions
@@ -47,7 +47,7 @@ Use `snake_case` for functions and variables, `PascalCase` for classes, and desc
 
 ## Testing Guidelines
 
-Use `pytest` for tests. Place tests near the algorithm being implemented, such as `01_knn/test_knn.py`, or move to a top-level `tests/` directory later if the project grows.
+Use `pytest` for tests. Place tests near the algorithm being implemented, such as `knn/test_knn.py`, or move to a top-level `tests/` directory later if the project grows.
 
 Tests should cover core behavior, edge cases, and expected shapes. For numerical algorithms, assert approximate values with tolerances instead of exact floating-point equality.
 
