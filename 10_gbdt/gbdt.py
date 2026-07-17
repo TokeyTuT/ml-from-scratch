@@ -34,7 +34,7 @@ class GBDTRegression(BaseEstimator):
         for k in range(self.n_estimators):
             estimator, y = self._weak_decision_tree(X, y)
             self.estimators_.append(estimator)
-        return self
+        return self 
 
     def predict(self, X):
         y_pred = np.full(len(X), self.base_line)
