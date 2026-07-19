@@ -23,7 +23,7 @@ class XGBoost(BaseEstimator):
 
         # 初始化第 0 个模型，预测值都取平均值
         self.base_line = np.mean(y)
-        gradients = y - self.base_line
+        gradients = self.base_line - y # xgboost 使用正梯度，所以是预测 - 真实 和 gbdt 相反
 
         hessians = np.full(len(y), 1)
         for k in range(self.n_estimators):
@@ -36,7 +36,7 @@ class XGBoost(BaseEstimator):
 
             # 更新梯度
             y_pred = estimator.predict(X)
-            gradients = gradients - y_pred
+            gradients = gradients + self.learning_rate * y_pred
 
         return self
 
@@ -44,7 +44,5 @@ class XGBoost(BaseEstimator):
         y_pred = np.full(len(X), self.base_line)
         for k in range(self.n_estimators):
             y_pred = y_pred + self.learning_rate * self.estimators_[k].predict(X)
-
-        return y_pred
 
         return y_pred
