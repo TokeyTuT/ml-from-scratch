@@ -49,7 +49,7 @@ $$
 - 需要固定取值范围的特征。
 - 数据异常值较少的小型数据集。
 
-实现文件：[utils/min_max_scaler.py](utils/min_max_scaler.py)
+实现文件：[utils](utils/min_max_scaler.py)
 
 ### Z-Score 标准化
 
@@ -94,7 +94,7 @@ $$
 网格搜索适合参数空间较小、希望系统比较不同配置的场景。
 
 
-## 梯度下降法(*Gradient descent*)
+### 梯度下降法(*Gradient descent*)
 
 *   什么是梯度
 
@@ -897,6 +897,8 @@ graph LR
 
 ## 随机森林
 
+
+
 **随机森林构建方法**：
 
 1.样本随机采样 (Bootstrap Sampling)
@@ -1325,194 +1327,63 @@ $$
 
 
 
-## XGBoost 模型
+## 朴素贝叶斯
 
-**XGBoost（Extreme Gradient Boosting Tree)，极限梯度提升树** 一个基于 GBDT 模型的优化算法 ，很多数据挖掘的比赛也经常使用这个算法。
+朴素贝叶斯（Naive Bayes）是一种基于概率的分类算法。它的核心思想很直观：
+> 根据样本已经出现的特征，计算它属于每个类别的概率，然后选择概率最大的类别。
 
-传统的 GBDT 模型通常主要使用一阶梯度，XGBoost同时使用一阶和**二阶梯度**，能更准确地计算叶子输出和分裂收益。
-
-
-
-### 数学推导
-
-*   XGBoost 希望同时做到两件事：
-
-    -   预测误差尽量小；
-    -   模型不要太复杂。
-
-    因此目标函数就是给损失函数加上一个正则项，总的目标函数为：
-    $$
-    \text{Obj} = \sum_{i=1}^{n}l(y_i,\hat y_i) + \sum_{t=1}^{K}\Omega(f_t)
-    $$
-    第一部分是损失函数，第二部分是树的复杂度惩罚。
-
-
-
-常用的正则化项为：
-
+朴素贝叶斯的公式很简单：
 $$
-\Omega(f_t)=\gamma T+\frac{\lambda}{2}\sum_{i = j}^{T}w_j^2
+P(C\mid X) =\frac{P(C)P(X\mid C)}{P(X)}
 $$
 其中：
 
-
-* \(T\)：叶子数量；
-* \(w_j\)：第 \(j\) 个叶子的预测值；
-* \(\gamma\)：增加一个叶子的代价；
-* \(\lambda\)：限制叶子预测值不要过大。
-
-直观上：
-
--   \(\gamma\) 越大，越不愿意分裂；
--   \(\lambda\) 越大，叶子输出越保守。
+-   $C$ 代表样本的类别（标签）
+-   $X$ 代表样本的特征值
 
 
 
-假设前面已经训练了 $t - 1$ 个模型，在第 $t$ 个模型时，预测值可以如下表示：
+在分类的时候，所有特征值 $P(X)$ 都相同，也就是说：
 $$
-\hat y_i^{t} = \hat y_{i}^{t - 1} + F_t(x_i)
-$$
-其中：
-
-*   $F_t(x_i)$ 代表第 $t$ 个模型对特征值 $x_i$ 的模型预测
-
-
-
-我们可以得到当前目标为：
-$$
-\text{Obj}^{(t)} = \sum_i l\left( y_i, \hat y_i^{(t-1)}+f_t(x_i) \right) + \Omega(f_t)
-$$
-我们想要让当前目标函数尽可能小，直接对当前函数进行分析很困难，考虑 $l\left( y_i, \hat y_i^{(t-1)}+f_t(x_i) \right)$ 的对二阶泰勒展开：
-$$
-l\left( y_i, \hat y_i^{(t-1)}+f_t(x_i) \right) \approx l\left( y_i, \hat y_i^{(t-1)}\right) + g_if_t(x_i) + \frac12h_if_t^2(x_i)
-$$
-其中：
-
-*   $g_i = \frac{\partial l}{\partial f_t(x_i)}$ 
-*   $h_i = \frac{\partial^2 l}{\partial f^2_t(x_i)}$
-
-代入 $Obj^t$，由于 $l\left( y_i, \hat y_i^{(t-1)}\right)$ 是常数项，去掉与新树无关的常数项后：
-$$
-\text{Obj}^{(t)}
-\approx
-\sum_i
-\left[
-g_i f_t(x_i)
-+
-\frac12 h_i f_t^2(x_i)
-\right]
-+
-\Omega(f_t)
+P(C\mid X) \propto P(C)P(X\mid C)
 $$
 
 
-在当前树中（当前模型），对所有样本，设最终的预测值落在了第 $j$ 个叶子上的样本集合为：
-$$
-I_j=\{i\mid q(x_i)=j\}
-$$
-假设这个叶子的预测值为 $w_j$
+==这里的”朴素”，代表的是一个很强的假设：==
 
-于是目标函数可以转化为对样本求和化为对该树的叶子求和：
-$$
-\text{Obj}^t\approx \sum_{j = 1}^{T}\left[
-\left(\sum_{i\in I_j}g_i\right)w_j + \frac12\left(\sum_{i\in I_j}h_i\right)w_j^2
-\right] + \Omega(f_t)
-$$
+>   在类型确定以后，所有特征值向量都线性无关（所有特征值之间独立）
 
+对于独立特征值，我们有如下公式：
+$$
+P(x_1,x_2,\dots,x_n \mid C) = \prod_{i=1}^{n}P(x_i\mid C)
+$$
+于是，我们可以得到：
+$$
+P(C\mid X)\propto P(C)\prod_{i=1}^nP(x_i\mid C)
+$$
+所以在进行预测计算时，我们只需要考虑 $P(C)\prod_{i=1}^nP(x_i\mid C)$ 即可
 
-定义该叶子内的梯度之和：
-
-*   \[ G_j=\sum_{i\in I_j}g_i \]
-*   \[ H_j=\sum_{i\in I_j}h_i \]
-
-将惩罚系数展开：
-$$
-\text{Obj}^{(t)}
-\approx
-\sum_{j=1}^{T}
-\left[
-G_jw_j
-+
-\frac12(H_j+\lambda)w_j^2
-\right]
-+
-\gamma T
-$$
-对 $w_j$ 求偏导：
-$$
-\frac{\partial Obj^t}{\partial w_j} = G_j + (H_j+\lambda)w_j
-$$
-令导数等于 0：
-$$
-G_j+(H_j+\lambda)w_j=0 
-$$
-**于是，我们就得到了该叶子的最佳预测值：**
-$$
-\boxed{
-w_j^*
-=
--\frac{G_j}{H_j+\lambda}
-}
-$$
-这个公式说明：叶子的输出不是简单的平均残差，而是由叶子中所有样本的一阶、二阶梯度共同决定
+虽然现实中特征通常并不真正独立，但这个简单假设经常依然能得到不错的分类效果。
 
 
 
-将最佳预测值回带入目标函数，化简可得
-$$
-\text{Obj}^*
-=
--\frac12
-\sum_{j=1}^{T}
-\frac{G_j^2}{H_j+\lambda}
-+
-\gamma T
-$$
 
 
-**==现在还有一个问题，我们考虑在这个节点是否考虑分裂？还是将这个节点作为叶节点不再分裂？==**
+#### 模型工作流程
 
-#### 计算分裂收益
+1.   计算每个类别（标签）的先验概率(*Prior probablity*) $P(C_i)$
+2.   计算每个特征值在每个类别下的似然概率(*Likelihood probability*) $P(x_i\mid C_i)$
+3.   根据计算出的两个类别的概率计算后验概率(*Posterior probability*) $P(C_i|X)$
 
-由 $\text{Obj}^*$ 可得到每个叶子节点的 \[\text{Obj}_j\]:
+我们的目标是求：
 $$
-\text{Obj}_j = -\frac12\frac{G_j^2}{H_j+\lambda} + \gamma
+\hat y_i= \arg \max_{C_i}P(C_i)\prod_{i=1}^nP(x_i|C_i)
 $$
-假设一个节点分裂成左右两个节点：
+找到类别 $C_i$ 即可
 
--   左节点梯度和为 \(G_L,H_L\)；
--   右节点梯度和为 \(G_R,H_R\)；
--   原节点为 \(G=G_L+G_R\)，\(H=H_L+H_R\)。
 
-那么分裂带来的最佳收益为：
-$$
-\boxed{
-\text{Gain}
-=
-\frac12
-\left[
-\frac{G_L^2}{H_L+\lambda}
-+
-\frac{G_R^2}{H_R+\lambda}
--
-\frac{(G_L+G_R)^2}
-{H_L+H_R+\lambda}
-\right]
--\gamma
-}
-$$
-注意，$\text{Gain} = Obj_{before} - Obj_{after}$  因为目标函数是**越小越好**
 
-我们考虑，如果：
-$$
-Gain > 0
-$$
-那么会带来正向收益，可以考虑分裂
 
-如果
-$$
-Gain ≤0
-$$
-那么在这个节点分裂不会带来收益，不必考虑分裂，该节点可以直接作为叶子节点
 
-$\text{Gain}$ 函数也可以称作是打分函数
+
+
